@@ -1,0 +1,46 @@
+{
+  "name": "practisign",
+  "version": "1.0.0",
+  "description": "Auto-registration userscript for PractiScore matches",
+  "main": "practisign.user.js",
+  "scripts": {
+    "test": "echo 'Open test-page.html in browser and run test-script.js in console'",
+    "build": "echo 'No build process needed - this is a userscript'",
+    "lint": "echo 'Consider using ESLint for JavaScript validation'"
+  },
+  "keywords": [
+    "userscript",
+    "tampermonkey",
+    "practiscore",
+    "auto-registration",
+    "uspsa",
+    "idpa"
+  ],
+  "author": "PractiSign Developer",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/practisign.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/practisign/issues"
+  },
+  "homepage": "https://github.com/yourusername/practisign#readme",
+  "files": [
+    "practisign.user.js",
+    "test-page.html",
+    "test-script.js",
+    "README.md",
+    "DESIGN_DOC.md"
+  ],
+  "devDependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "browserslist": [
+    "Chrome >= 80",
+    "Firefox >= 75",
+    "Safari >= 13",
+    "Edge >= 80"
+  ]
+}

@@ -1,0 +1,218 @@
+/* PractiSign UI Styles */
+#practisign-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10000;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+}
+
+#practisign-controls {
+  background: #2c3e50;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 200px;
+}
+
+#practisign-status {
+  color: #ecf0f1;
+  font-weight: 500;
+  flex: 1;
+  text-align: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: #34495e;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-idle {
+  background: #34495e !important;
+  color: #bdc3c7 !important;
+}
+
+.status-watching {
+  background: #f39c12 !important;
+  color: #fff !important;
+  animation: pulse 2s infinite;
+}
+
+.status-hot {
+  background: #e74c3c !important;
+  color: #fff !important;
+  animation: pulse 0.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+#practisign-arm {
+  background: #27ae60;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+  min-width: 60px;
+}
+
+#practisign-arm:hover {
+  background: #229954;
+  transform: translateY(-1px);
+}
+
+#practisign-arm:active {
+  transform: translateY(0);
+}
+
+#practisign-config {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+#practisign-config:hover {
+  background: #2980b9;
+  transform: translateY(-1px);
+}
+
+#practisign-panel {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid #ddd;
+  max-width: 350px;
+}
+
+#practisign-panel h3 {
+  margin: 0 0 15px 0;
+  color: #2c3e50;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.config-group {
+  margin-bottom: 15px;
+}
+
+.config-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #34495e;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.config-group input[type="text"] {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.config-group input[type="text"]:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.config-group input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+.config-group button {
+  background: #27ae60;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  margin-right: 10px;
+  transition: all 0.2s;
+}
+
+.config-group button:hover {
+  background: #229954;
+}
+
+#config-cancel {
+  background: #95a5a6 !important;
+}
+
+#config-cancel:hover {
+  background: #7f8c8d !important;
+}
+
+/* Toast notifications */
+.practisign-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #2c3e50;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 10001;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  max-width: 300px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.practisign-toast.show {
+  transform: translateX(0);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  #practisign-container {
+    bottom: 10px;
+    right: 10px;
+    left: 10px;
+  }
+
+  #practisign-controls {
+    min-width: auto;
+    width: 100%;
+  }
+
+  #practisign-panel {
+    max-width: none;
+    margin-top: 10px;
+  }
+
+  .practisign-toast {
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+}
