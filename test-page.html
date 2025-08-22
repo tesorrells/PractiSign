@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PractiScore Registration Test Page</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .status {
+        background: #e74c3c;
+        color: white;
+        padding: 15px;
+        border-radius: 6px;
+        text-align: center;
+        margin-bottom: 20px;
+        font-weight: 600;
+      }
+      .status.open {
+        background: #27ae60;
+      }
+      .form-group {
+        margin-bottom: 20px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: #34495e;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+        box-sizing: border-box;
+      }
+      .radio-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 10px;
+      }
+      .radio-option {
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+        background: #f9f9f9;
+      }
+      .radio-option:hover {
+        background: #f0f0f0;
+      }
+      .radio-option input[type="radio"] {
+        width: auto;
+        margin-right: 8px;
+      }
+      .checkbox-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .checkbox-group input[type="checkbox"] {
+        width: auto;
+        margin-right: 10px;
+      }
+      .categories-section {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 4px;
+        margin: 20px 0;
+      }
+      .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .category-option {
+        display: flex;
+        align-items: center;
+        padding: 6px 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+        background: white;
+      }
+      .category-option:hover {
+        background: #f0f0f0;
+      }
+      .category-option input[type="checkbox"] {
+        width: auto;
+        margin-right: 8px;
+      }
+      .waiver-section {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 4px;
+        margin: 20px 0;
+      }
+      button {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 500;
+      }
+      button:hover {
+        background: #2980b9;
+      }
+      button:disabled {
+        background: #95a5a6;
+        cursor: not-allowed;
+      }
+      .controls {
+        text-align: center;
+        margin: 20px 0;
+        padding: 20px;
+        background: #ecf0f1;
+        border-radius: 6px;
+      }
+      .controls button {
+        margin: 0 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>PractiScore Match Registration</h1>
+
+      <div class="status" id="status">
+        Registration opens in <span id="countdown">05:00</span>
+      </div>
+
+      <div class="controls">
+        <button onclick="toggleRegistration()">
+          Toggle Registration Open/Closed
+        </button>
+        <button onclick="resetForm()">Reset Form</button>
+        <button onclick="simulateStripe()">Simulate Stripe Redirect</button>
+      </div>
+
+      <form id="registrationForm" style="display: none">
+        <div class="form-group">
+          <label>Division:</label>
+          <div class="radio-group">
+            <div class="radio-option">
+              <input type="radio" name="division" value="ISR" id="div-isr" />
+              <label for="div-isr">ISR</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="division" value="OSR" id="div-osr" />
+              <label for="div-osr">OSR</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="division" value="PROD" id="div-prod" />
+              <label for="div-prod">PROD</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="division" value="SS" id="div-ss" />
+              <label for="div-ss">SS</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="division" value="CO" id="div-co" />
+              <label for="div-co">CO</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="division" value="OPN" id="div-opn" />
+              <label for="div-opn">OPN</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="division" value="LTD" id="div-ltd" />
+              <label for="div-ltd">LTD</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="division" value="RFPI" id="div-rfpi" />
+              <label for="div-rfpi">RFPI</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="division" value="RFPO" id="div-rfpo" />
+              <label for="div-rfpo">RFPO</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="division" value="RFRI" id="div-rfri" />
+              <label for="div-rfri">RFRI</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="division" value="RFRO" id="div-rfro" />
+              <label for="div-rfro">RFRO</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="division" value="PCCI" id="div-pcci" />
+              <label for="div-pcci">PCCI</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="division" value="PCCO" id="div-pcco" />
+              <label for="div-pcco">PCCO</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="division" value="LO" id="div-lo" />
+              <label for="div-lo">LO</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Class:</label>
+          <div class="radio-group">
+            <div class="radio-option">
+              <input type="radio" name="class" value="U" id="class-u" />
+              <label for="class-u">U</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="class" value="D" id="class-d" />
+              <label for="class-d">D</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="class" value="C" id="class-c" />
+              <label for="class-c">C</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="class" value="B" id="class-b" />
+              <label for="class-b">B</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="class" value="A" id="class-a" />
+              <label for="class-a">A</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="class" value="M" id="class-m" />
+              <label for="class-m">M</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="class" value="G" id="class-g" />
+              <label for="class-g">G</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" name="class" value="X" id="class-x" />
+              <label for="class-x">X</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="categories-section">
+          <h3>Categories (Optional)</h3>
+          <div class="categories-grid">
+            <div class="category-option">
+              <input
+                type="checkbox"
+                name="categories[]"
+                value="Preteen"
+                id="cat-preteen"
+              />
+              <label for="cat-preteen">Preteen</label>
+            </div>
+            <div class="category-option">
+              <input
+                type="checkbox"
+                name="categories[]"
+                value="Junior"
+                id="cat-junior"
+              />
+              <label for="cat-junior">Junior</label>
+            </div>
+            <div class="category-option">
+              <input
+                type="checkbox"
+                name="categories[]"
+                value="Senior"
+                id="cat-senior"
+              />
+              <label for="cat-senior">Senior</label>
+            </div>
+            <div class="category-option">
+              <input
+                type="checkbox"
+                name="categories[]"
+                value="Super Senior"
+                id="cat-super-senior"
+              />
+              <label for="cat-super-senior">Super Senior</label>
+            </div>
+            <div class="category-option">
+              <input
+                type="checkbox"
+                name="categories[]"
+                value="Lady"
+                id="cat-lady"
+              />
+              <label for="cat-lady">Lady</label>
+            </div>
+            <div class="category-option">
+              <input
+                type="checkbox"
+                name="categories[]"
+                value="Law Enforcement"
+                id="cat-le"
+              />
+              <label for="cat-le">Law Enforcement</label>
+            </div>
+            <div class="category-option">
+              <input
+                type="checkbox"
+                name="categories[]"
+                value="Military"
+                id="cat-military"
+              />
+              <label for="cat-military">Military</label>
+            </div>
+            <div class="category-option">
+              <input
+                type="checkbox"
+                name="categories[]"
+                value="Distinguished Senior"
+                id="cat-distinguished"
+              />
+              <label for="cat-distinguished">Distinguished Senior</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="member-number">USPSA #:</label>
+          <input
+            type="text"
+            id="member-number"
+            name="member-number"
+            placeholder="A12345"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="code">Preregistration Code (optional):</label>
+          <input
+            type="text"
+            id="code"
+            name="code"
+            placeholder="Enter code if you have one"
+          />
+        </div>
+
+        <div class="waiver-section">
+          <h3>Waivers & Agreements</h3>
+          <div class="checkbox-group">
+            <input type="checkbox" id="accept_waiver" name="accept_waiver" />
+            <label for="accept_waiver"
+              >I acknowledge and agree to the safety rules and match
+              procedures</label
+            >
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px">
+          <button type="submit" id="regSubmit" style="display: none;">Register</button>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      let registrationOpen = false;
+      let countdownInterval;
+      let countdownTime = 30; // 30 seconds
+      
+      // Make registration status available to scripts
+      window.registrationOpen = false;
+
+      function updateCountdown() {
+        const minutes = Math.floor(countdownTime / 60);
+        const seconds = countdownTime % 60;
+        document.getElementById("countdown").textContent = `${minutes
+          .toString()
+          .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+
+        if (countdownTime <= 0) {
+          clearInterval(countdownInterval);
+          openRegistration();
+        }
+        countdownTime--;
+      }
+
+      function openRegistration() {
+        registrationOpen = true;
+        window.registrationOpen = true;
+        document.getElementById("status").textContent = "Registration is OPEN";
+        document.getElementById("status").className = "status open";
+        document.getElementById("registrationForm").style.display = "block";
+        document.getElementById("regSubmit").style.display = "inline-block";
+
+        // Show register button only when registration opens
+        const registerBtn = document.createElement("button");
+        registerBtn.textContent = "Register";
+        registerBtn.id = "register-now-btn";
+        registerBtn.onclick = () => {
+          document.getElementById("registrationForm").style.display = "block";
+          registerBtn.remove();
+        };
+        document.querySelector(".controls").appendChild(registerBtn);
+      }
+
+      function toggleRegistration() {
+        if (registrationOpen) {
+          registrationOpen = false;
+          window.registrationOpen = false;
+          document.getElementById("status").textContent =
+            "Registration opens in 00:30";
+          document.getElementById("status").className = "status";
+          document.getElementById("registrationForm").style.display = "none";
+          document.getElementById("regSubmit").style.display = "none";
+          // Remove the register button when closing
+          const registerBtn = document.getElementById("register-now-btn");
+          if (registerBtn) registerBtn.remove();
+          countdownTime = 30;
+          updateCountdown();
+          countdownInterval = setInterval(updateCountdown, 1000);
+        } else {
+          openRegistration();
+        }
+      }
+
+      function resetForm() {
+        document.getElementById("registrationForm").reset();
+      }
+
+      function simulateStripe() {
+        alert("Simulating redirect to Stripe checkout...");
+        // In a real scenario, this would redirect to checkout.stripe.com
+      }
+
+      // Form submission
+      document
+        .getElementById("registrationForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          if (!registrationOpen) {
+            console.log("❌ Form submitted but registration not open!");
+            return;
+          }
+          console.log("✅ Form submitted - registration is open!");
+          alert(
+            "Registration submitted! In a real scenario, this would redirect to Stripe for payment."
+          );
+        });
+
+      // Start countdown
+      updateCountdown();
+      countdownInterval = setInterval(updateCountdown, 1000);
+    </script>
+  </body>
+</html>

@@ -51,8 +51,13 @@ A browser userscript that automatically registers you for PractiScore matches wh
 | --------------------- | ----------------------------------- | -------------------------------------------- |
 | Division              | Your shooting division              | "CO", "LO", "OPN", "LTD", "PROD", "SS", etc. |
 | Class                 | Your USPSA classification           | "U", "D", "C", "B", "A", "M", "G", "X"       |
+| Power Factor          | Your power factor classification    | "Major", "Minor"                             |
 | Categories            | Optional categories you qualify for | "Senior", "Lady", "Military", etc.           |
-| Member ID             | Your USPSA member number            | "A12345"                                     |
+| USPSA Member ID       | Your USPSA member number            | "A12345"                                     |
+| Member Number         | Match-specific member number        | "12345"                                      |
+| Mailing Address       | Your mailing address                | "123 Main St, City, State"                   |
+| Phone Number          | Your phone number                   | "(555) 123-4567"                             |
+| Match Shirt Size      | Your preferred shirt size           | "L", "XL", "2XL", etc.                       |
 | Prereg Code           | Optional club preregistration code  | "CLUB2024"                                   |
 | Auto-agree to waivers | Automatically check waiver boxes    | ✓ (recommended)                              |
 | Stop at Stripe        | Pause before payment confirmation   | ✓ (recommended)                              |

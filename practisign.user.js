@@ -5,6 +5,9 @@
 // @description  Auto-register for PractiScore matches with configurable preferences
 // @author       You
 // @match        https://practiscore.com/*
+// @match        file://*
+// @match        http://localhost/*
+// @match        http://127.0.0.1/*
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_notification
@@ -116,6 +119,8 @@ GM_addStyle(`
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     border: 1px solid #ddd;
     max-width: 350px;
+    max-height: 80vh;
+    overflow-y: auto;
 }
 
 #practisign-panel h3 {
@@ -259,9 +264,14 @@ GM_addStyle(`
     sport: "USPSA",
     division: "CO",
     class: "B",
+    powerFactor: "Major",
     categories: [],
     memberIdLabel: "USPSA #",
     memberIdValue: "",
+    memberNumber: "",
+    mailingAddress: "",
+    phoneNumber: "",
+    matchShirt: "L",
     preregCode: null,
     agreeWaiver: true,
     stopAtStripe: true,
@@ -297,6 +307,7 @@ GM_addStyle(`
             <div id="practisign-controls">
                 <div id="practisign-status">Idle</div>
                 <button id="practisign-arm">Arm</button>
+                <button id="practisign-refresh" title="Refresh page">🔄</button>
                 <button id="practisign-config">⚙️</button>
             </div>
             <div id="practisign-panel" style="display: none;">
@@ -304,20 +315,23 @@ GM_addStyle(`
                 <div class="config-group">
                     <label>Division:</label>
                     <select id="config-division">
+                        <option value="CO">CO (Carry Optics)</option>
+                        <option value="LO">LO (Limited Optics)</option>
+                        <option value="OPN">OPN (Open)</option>
+                        <option value="LTD">LTD (Limited)</option>
+                        <option value="PROD">PROD (Production)</option>
+                        <option value="SS">SS (Single Stack)</option>
+                        <option value="PCC">PCC</option>
+                        <option value="REV">REV (Revolver)</option>
+                        <option value="L10">L10 (Limited 10)</option>
                         <option value="ISR">ISR</option>
                         <option value="OSR">OSR</option>
-                        <option value="PROD">PROD</option>
-                        <option value="SS">SS</option>
-                        <option value="CO">CO</option>
-                        <option value="OPN">OPN</option>
-                        <option value="LTD">LTD</option>
                         <option value="RFPI">RFPI</option>
                         <option value="RFPO">RFPO</option>
                         <option value="RFRI">RFRI</option>
                         <option value="RFRO">RFRO</option>
                         <option value="PCCI">PCCI</option>
                         <option value="PCCO">PCCO</option>
-                        <option value="LO">LO</option>
                     </select>
                 </div>
                 <div class="config-group">
@@ -334,6 +348,13 @@ GM_addStyle(`
                     </select>
                 </div>
                 <div class="config-group">
+                    <label>Power Factor:</label>
+                    <select id="config-powerFactor">
+                        <option value="Major">Major</option>
+                        <option value="Minor">Minor</option>
+                    </select>
+                </div>
+                <div class="config-group">
                     <label>Categories:</label>
                     <div class="checkbox-list">
                         <label><input type="checkbox" value="Preteen"> Preteen</label>
@@ -347,10 +368,41 @@ GM_addStyle(`
                     </div>
                 </div>
                 <div class="config-group">
-                    <label>Member ID:</label>
+                    <label>USPSA Member ID:</label>
                     <input type="text" id="config-memberId" value="${
                       config.memberIdValue
                     }" placeholder="A12345">
+                </div>
+                <div class="config-group">
+                    <label>Member Number:</label>
+                    <input type="text" id="config-memberNumber" value="${
+                      config.memberNumber
+                    }" placeholder="Member number">
+                </div>
+                <div class="config-group">
+                    <label>Mailing Address:</label>
+                    <input type="text" id="config-mailingAddress" value="${
+                      config.mailingAddress
+                    }" placeholder="Your address">
+                </div>
+                <div class="config-group">
+                    <label>Phone Number:</label>
+                    <input type="text" id="config-phoneNumber" value="${
+                      config.phoneNumber
+                    }" placeholder="(555) 123-4567">
+                </div>
+                <div class="config-group">
+                    <label>Match Shirt Size:</label>
+                    <select id="config-matchShirt">
+                        <option value="XS">XS</option>
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="2XL">2XL</option>
+                        <option value="3XL">3XL</option>
+                        <option value="4XL">4XL</option>
+                    </select>
                 </div>
                 <div class="config-group">
                     <label>Prereg Code (optional):</label>
@@ -395,12 +447,20 @@ GM_addStyle(`
 
   function attachUIEvents() {
     const armBtn = document.getElementById("practisign-arm");
+    const refreshBtn = document.getElementById("practisign-refresh");
     const configBtn = document.getElementById("practisign-config");
     const panel = document.getElementById("practisign-panel");
     const saveBtn = document.getElementById("config-save");
     const cancelBtn = document.getElementById("config-cancel");
 
     armBtn.addEventListener("click", toggleArmed);
+    refreshBtn.addEventListener("click", () => {
+      console.log("🔄 PractiSign: Manual page refresh requested");
+      showToast("Refreshing page...");
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    });
     configBtn.addEventListener("click", () => {
       panel.style.display = panel.style.display === "none" ? "block" : "none";
     });
@@ -423,6 +483,7 @@ GM_addStyle(`
   function saveConfigFromUI() {
     config.division = document.getElementById("config-division").value;
     config.class = document.getElementById("config-class").value;
+    config.powerFactor = document.getElementById("config-powerFactor").value;
 
     // Get selected categories
     const categoryCheckboxes = document.querySelectorAll(
@@ -431,6 +492,12 @@ GM_addStyle(`
     config.categories = Array.from(categoryCheckboxes).map((cb) => cb.value);
 
     config.memberIdValue = document.getElementById("config-memberId").value;
+    config.memberNumber = document.getElementById("config-memberNumber").value;
+    config.mailingAddress = document.getElementById(
+      "config-mailingAddress"
+    ).value;
+    config.phoneNumber = document.getElementById("config-phoneNumber").value;
+    config.matchShirt = document.getElementById("config-matchShirt").value;
     config.preregCode = document.getElementById("config-prereg").value || null;
     config.agreeWaiver = document.getElementById("config-waiver").checked;
     config.stopAtStripe = document.getElementById("config-stopStripe").checked;
@@ -444,6 +511,7 @@ GM_addStyle(`
   function loadConfigToUI() {
     document.getElementById("config-division").value = config.division;
     document.getElementById("config-class").value = config.class;
+    document.getElementById("config-powerFactor").value = config.powerFactor;
 
     // Set categories
     const categoryCheckboxes = document.querySelectorAll(
@@ -454,6 +522,11 @@ GM_addStyle(`
     });
 
     document.getElementById("config-memberId").value = config.memberIdValue;
+    document.getElementById("config-memberNumber").value = config.memberNumber;
+    document.getElementById("config-mailingAddress").value =
+      config.mailingAddress;
+    document.getElementById("config-phoneNumber").value = config.phoneNumber;
+    document.getElementById("config-matchShirt").value = config.matchShirt;
     document.getElementById("config-prereg").value = config.preregCode || "";
     document.getElementById("config-waiver").checked = config.agreeWaiver;
     document.getElementById("config-stopStripe").checked = config.stopAtStripe;
@@ -503,6 +576,11 @@ GM_addStyle(`
   function tick() {
     if (!armed || inFlight) return;
 
+    // Check if registration is actually open (for test page)
+    if (window.registrationOpen === false) {
+      return;
+    }
+
     // Check if registration is available
     const registerClicked = clickButtonLike(
       "register",
@@ -512,9 +590,24 @@ GM_addStyle(`
       "sign up now"
     );
     if (registerClicked) {
+      console.log("🎯 PractiSign: Register button clicked!");
       inFlight = true;
       updateStatus("Hot");
       showToast("Registration clicked - filling form...");
+      setTimeout(afterRegister, 400);
+      return;
+    }
+
+    // Check for waitlist registration (when match is full but waitlist is open)
+    const waitlistInput = document.querySelector(
+      'input[name="waitlist"][value="1"]'
+    );
+    const regSubmitBtn = document.getElementById("regSubmit");
+    if (waitlistInput && regSubmitBtn && regSubmitBtn.value === "Register") {
+      console.log("🎯 PractiSign: Waitlist registration detected!");
+      inFlight = true;
+      updateStatus("Hot");
+      showToast("Waitlist registration detected - filling form...");
       setTimeout(afterRegister, 400);
       return;
     }
@@ -523,6 +616,36 @@ GM_addStyle(`
     const body = document.body.innerText;
     if (/opens in|registration opens/i.test(body)) {
       mode = "near";
+    }
+
+    // Check if registration is completely closed (no form at all)
+    const hasRegistrationForm =
+      document.getElementById("registration") ||
+      document.getElementById("regForm") ||
+      document.querySelector('form[action*="register"]');
+    if (!hasRegistrationForm) {
+      console.log(
+        "🎯 PractiSign: Registration form not found - registration closed"
+      );
+      mode = "far"; // Poll less frequently when closed
+    }
+
+    // In "near" mode, refresh the page periodically to catch registration opening
+    if (mode === "near" && !hasRegistrationForm) {
+      const refreshInterval = 30000; // 30 seconds
+      const timeSinceLastRefresh = Date.now() - (window.lastRefreshTime || 0);
+
+      if (timeSinceLastRefresh > refreshInterval) {
+        console.log(
+          "🔄 PractiSign: Refreshing page to check for registration..."
+        );
+        window.lastRefreshTime = Date.now();
+        showToast("Refreshing page to check for registration...");
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+        return;
+      }
     }
 
     // Schedule next poll
@@ -560,12 +683,32 @@ GM_addStyle(`
     const divisionRadios = document.querySelectorAll(
       'input[name="division"][type="radio"]'
     );
+
+    // Division name mapping for different PractiScore formats
+    const divisionMapping = {
+      // Abbreviated to full names
+      CO: ["CO", "Carry Optics"],
+      LO: ["LO", "Limited Optics"],
+      OPN: ["OPN", "Open"],
+      LTD: ["LTD", "Limited"],
+      PROD: ["PROD", "Production"],
+      SS: ["SS", "Single Stack"],
+      PCC: ["PCC", "PCC"],
+      REV: ["REV", "Revolver"],
+      L10: ["L10", "Limited 10"],
+      // Add more mappings as needed
+    };
+
+    const targetDivisions = divisionMapping[config.division] || [
+      config.division,
+    ];
+
     for (const radio of divisionRadios) {
-      if (radio.value === config.division) {
+      if (targetDivisions.includes(radio.value)) {
         radio.checked = true;
         radio.dispatchEvent(new Event("change", { bubbles: true }));
         filled = true;
-        showToast("Division filled: " + config.division);
+        showToast("Division filled: " + radio.value);
         break;
       }
     }
@@ -612,6 +755,67 @@ GM_addStyle(`
       showToast("Member ID filled: " + config.memberIdValue);
     }
 
+    // Fill power factor - PractiScore uses radio buttons
+    const powerFactorRadios = document.querySelectorAll(
+      'input[name="power-factor"][type="radio"]'
+    );
+    for (const radio of powerFactorRadios) {
+      if (radio.value === config.powerFactor) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event("change", { bubbles: true }));
+        filled = true;
+        showToast("Power Factor filled: " + config.powerFactor);
+        break;
+      }
+    }
+
+    // Fill member number (different from USPSA member ID)
+    const memberNumberInput =
+      document.getElementById("member-number") ||
+      document.querySelector('input[name="member-number"]');
+    if (memberNumberInput && config.memberNumber) {
+      memberNumberInput.value = config.memberNumber;
+      memberNumberInput.dispatchEvent(new Event("change", { bubbles: true }));
+      filled = true;
+      showToast("Member Number filled: " + config.memberNumber);
+    }
+
+    // Fill mailing address
+    const mailingAddressInput =
+      document.getElementById("mailing-address") ||
+      document.querySelector('input[name="mailing-address"]');
+    if (mailingAddressInput && config.mailingAddress) {
+      mailingAddressInput.value = config.mailingAddress;
+      mailingAddressInput.dispatchEvent(new Event("change", { bubbles: true }));
+      filled = true;
+      showToast("Mailing Address filled");
+    }
+
+    // Fill phone number
+    const phoneInput =
+      document.getElementById("phone") ||
+      document.querySelector('input[name="phone"]');
+    if (phoneInput && config.phoneNumber) {
+      phoneInput.value = config.phoneNumber;
+      phoneInput.dispatchEvent(new Event("change", { bubbles: true }));
+      filled = true;
+      showToast("Phone Number filled");
+    }
+
+    // Fill match shirt size - PractiScore uses radio buttons
+    const matchShirtRadios = document.querySelectorAll(
+      'input[name="match-shirt"][type="radio"]'
+    );
+    for (const radio of matchShirtRadios) {
+      if (radio.value === config.matchShirt) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event("change", { bubbles: true }));
+        filled = true;
+        showToast("Match Shirt filled: " + config.matchShirt);
+        break;
+      }
+    }
+
     // Fill prereg code if provided - PractiScore uses "code" field
     if (config.preregCode) {
       const codeInput =
@@ -651,10 +855,19 @@ GM_addStyle(`
 
     // Submit form - PractiScore uses "Register" button
     setTimeout(() => {
+      // Check if registration is actually open (for test page)
+      if (window.registrationOpen === false) {
+        console.log("❌ PractiSign: Not submitting - registration not open");
+        showToast("Registration not open yet - waiting...");
+        disarm();
+        return;
+      }
+
       const submitBtn =
         document.getElementById("regSubmit") ||
         document.querySelector('input[type="submit"][value="Register"]');
       if (submitBtn && !submitBtn.disabled) {
+        console.log("✅ PractiSign: Submitting registration form");
         submitBtn.click();
         showToast("Registration submitted - watching for payment");
         watchForStripe();
@@ -711,7 +924,12 @@ GM_addStyle(`
     const n = names.map((s) => s.toLowerCase());
     const btn = candidates.find((el) => {
       const text = (el.innerText || el.value || "").toLowerCase();
-      return n.some((t) => text.includes(t)) && !el.disabled;
+      const isVisible =
+        el.offsetParent !== null &&
+        el.style.display !== "none" &&
+        el.style.visibility !== "hidden" &&
+        el.style.opacity !== "0";
+      return n.some((t) => text.includes(t)) && !el.disabled && isVisible;
     });
 
     if (btn) {
@@ -843,6 +1061,8 @@ GM_addStyle(`
 
   // Initialize
   function init() {
+    console.log("🎯 PractiSign: Initializing...");
+
     loadConfig();
     createControlUI();
     loadConfigToUI();
@@ -856,9 +1076,32 @@ GM_addStyle(`
     console.log("🎯 PractiSign loaded on:", window.location.href);
     console.log("📋 Current config:", config);
 
+    // Force UI to be visible for debugging
+    setTimeout(() => {
+      const container = document.getElementById("practisign-container");
+      if (container) {
+        console.log("✅ PractiSign UI found and should be visible");
+        container.style.display = "block";
+        container.style.zIndex = "999999";
+      } else {
+        console.log("❌ PractiSign UI not found - creating manually");
+        createControlUI();
+      }
+    }, 1000);
+
     // Add debug function to window for testing
     window.practisignDebug = {
       config: () => console.log("Current config:", config),
+      showUI: () => {
+        console.log("🔧 Manually showing PractiSign UI...");
+        createControlUI();
+        const container = document.getElementById("practisign-container");
+        if (container) {
+          container.style.display = "block";
+          container.style.zIndex = "999999";
+          console.log("✅ UI should now be visible");
+        }
+      },
       testFormDetection: () => {
         console.log("🔍 Testing form detection...");
         const forms = document.querySelectorAll("form");
@@ -879,6 +1122,47 @@ GM_addStyle(`
         labels.forEach((label, i) => {
           console.log(`Label ${i}: "${label.textContent.trim()}"`);
         });
+      },
+      testDivisions: () => {
+        console.log("🎯 Testing division detection...");
+        const divisionRadios = document.querySelectorAll(
+          'input[name="division"][type="radio"]'
+        );
+        console.log(`Found ${divisionRadios.length} division options:`);
+        divisionRadios.forEach((radio, i) => {
+          console.log(`  ${i + 1}. "${radio.value}"`);
+        });
+
+        // Test current config against available divisions
+        const divisionMapping = {
+          CO: ["CO", "Carry Optics"],
+          LO: ["LO", "Limited Optics"],
+          OPN: ["OPN", "Open"],
+          LTD: ["LTD", "Limited"],
+          PROD: ["PROD", "Production"],
+          SS: ["SS", "Single Stack"],
+          PCC: ["PCC", "PCC"],
+          REV: ["REV", "Revolver"],
+          L10: ["L10", "Limited 10"],
+        };
+
+        const targetDivisions = divisionMapping[config.division] || [
+          config.division,
+        ];
+        const match = divisionRadios.find((radio) =>
+          targetDivisions.includes(radio.value)
+        );
+
+        if (match) {
+          console.log(
+            `✅ Config division "${config.division}" matches available option "${match.value}"`
+          );
+        } else {
+          console.log(
+            `❌ Config division "${config.division}" not found in available options`
+          );
+          console.log(`   Looking for: ${targetDivisions.join(", ")}`);
+        }
       },
     };
   }
